@@ -13,13 +13,30 @@
     <div id="barchart" class="chart"></div>
     <div class="info">
       <h1>Gráficos de Barras</h1>
-      <input data-role="slider" class="ultra-thin cycle-marker">
+      
       <button id="new_data" type="button"> Mudar dados</button>
-      <button id="new_params" type="button"> Mudar parametros</button>
+      
     </div>
   </div>
+  <div class="div">
+
+    <div id="scatterplot" class="div"></div>
+    <div class="info">
+      <h1>Scatterplot</h1>
+      
+      <button id="new_data_scatter" type="button"> Mudar dados</button>
+      
+    </div>
+  </div>
+  <div class="div">
   <div id="linechart" class="div"></div>
-  <div id="scatterplot" class="div"></div>
+  <div class="info">
+      <h1>Linechart</h1>
+      
+      <button id="new_data_line" type="button"> Mudar dados</button>
+      
+    </div>
+  </div>
 </body>
 <footer>
   <div class="Footer">
@@ -33,6 +50,8 @@
 <script src="https://d3js.org/d3.v6.min.js"></script>
 <script src="utils.js"></script>
 <script type="module" src="beautifulData.js"></script>
-<script type="module" src="exampleCharts.js"></script>
+<script type="module" src="exampleBarChart.js"></script>
+<script type="module" src="exampleScatterplot.js"></script>
+<script type="module" src="exampleLinechart.js"></script>
 
 </html>

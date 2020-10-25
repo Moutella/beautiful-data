@@ -13,33 +13,43 @@ let winner_brasileirao_pts = [
   {value: 76, label: '2014'},
   {value: 80, label: '2015'},
   {value: 81, label: '2016'},
-  {value: 71, label: '2017'},
+  {value: 71, label: '2017', fill: '#00aaaa'},
   {value: 80, label: '2018'},
   {value: 90, label: '2019'},
 ]
-async function bar_chart_function(bar_chart) {
 
-  bar_chart.addData(winner_brasileirao_pts);
-  bar_chart.createScales();
-  bar_chart.createAxis();
-  bar_chart.render();
+let flamengo_brasileirao_pts = [
+  {value: 10, label: '2006'},
+  {value: 20, label: '2007'},
+  {value: 30, label: '2008'},
+  {value: 40, label: '2009'},
+  {value: 50, label: '2010'},
+  {value: 60, label: '2012'},
+  {value: 70, label: '2013'},
+  {value: 80, label: '2014'},
+  {value: 90, label: '2015'},
+  {value: 100, label: '2077'},
+]
+async function bar_chart_function(bar_chart) {
+  bar_chart.updateData(winner_brasileirao_pts);
+  
 }
 
 let bar_chart = new BeautifulData({
   selector: '#barchart',
   type: 'barchart',
-  width: 600,
+  width: 400,
   height: 400,
-  position_x: 50,
-  position_y: 50,
+  position_x: 100,
+  position_y: 100,
   top: 100,
   bottom: 100,
-  left: 50,
-  right: 50,
-  label_x: 'Xis',
-  label_y: 'Ipsiloni',
+  left: 100,
+  right: 100,
+  label_x: 'Ano',
+  label_y: 'Pontuação',
   style: {
-    'background-color': '#aaffaa',
+    'background-color': 'beige',
     'border': '.5rem solid #a0a0a0'
   },
   extra: {
@@ -53,13 +63,7 @@ bar_chart_function(bar_chart);
 
 jQuery("#new_data").on("click", function () {
 
-  let new_data = Array.from({
-    length: winner_brasileirao_pts.length
-  }, () => Math.floor(Math.random() * 100))
-  bar_chart.addData(new_data);
-  bar_chart.createScales();
-  bar_chart.createAxis();
-  bar_chart.render()
+  bar_chart.updateData(flamengo_brasileirao_pts);
 });
 
 jQuery("#new_params").on("click", function () {});
