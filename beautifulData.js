@@ -1,105 +1,139 @@
 const d3 = window.d3
 
 export class BeautifulData {
-  constructor(selector, type, width, height, margin_x, margin_y, label_x, label_y, style = {}, extra_params = {}) {
-    this.margin_x = margin_x || 0;
-    this.data = [];
-    this.margin_y = margin_y || 0;
-    this.bins = [];
-    this.width = width || 800;
-    this.height = height || 600;
-    this.extra_params = extra_params
-    this.svg = d3.select(selector)
+  constructor(params) {
+    this.params = params;
+    this.svg = null;
+    this.margins = null;
+
+    this.xScale = null;
+    this.yScale = null;
+
+    this.circles = []
+
+    this.createSvg();
+    this.createMargins();
+    Object.entries(this.params.style).forEach(([key, value]) => {
+      this.svg.style(key, value);
+    });
+  }
+
+  createSvg() {
+    this.svg = d3.select(this.params.selector)
       .append("svg")
-      .attr('width', this.width)
-      .attr('height', this.height)
+      .attr('x', this.params.position_x || 0)
+      .attr('y', this.params.position_y || 0)
+      .attr('width', this.params.width + this.params.left + this.params.right)
+      .attr('height', this.params.height + this.params.top + this.params.bottom);
+  }
 
+  createMargins() {
+    this.margins = this.svg
+      .append('g')
+      .attr("transform", `translate(${this.params.left || 0},${this.params.top || 0})`)
+  }
 
-    Object.entries(style).forEach(([key, value]) => {
-      this.svg.style(key, value);
-    });
-    this.label_x = label_x || 'X';
-    this.label_y = label_y || 'Y';
-    this.fill = extra_params.fill ? extra_params.fill:'#ffffff';
-    extra_params = {
-      relative_thickness: extra_params.relative_thickness? extra_params.relative_thickness : 1
+  createScales() {
+    if (this.type == 'barchart') {
+      let yExtent = d3.extent(this.bins, d => {
+        return d.value
+      });
+      console.log(yExtent);
+      this.yScale = d3.scaleLinear().domain(yExtent).nice().range([0, this.height]);
+
     }
-  }
-
-  randomDots(amount) {
-    for (let id = 0; id < amount; id++) {
-      let x = Math.random() * this.height;
-      let y = Math.random() * this.width;
-      let r = Math.random() * 20 + 10;
-
-      let c = this.createCircle(x, y, r);
-
-      c.style('fill', getRandomColor());
-    }
-  }
-  updateData(data) {
 
   }
-  createCircle(x, y, r) {
-    let circle = this.svg.append('circle')
-      .attr('cx', x)
-      .attr('cy', y)
-      .attr('r', r);
 
-    return circle;
+  createAxis() {
+    let yAxis = d3.axisLeft(this.yScale)
+      .ticks(15);
+    this.svg.append("g")
+      .call(yAxis);
   }
 
-  
   addData(data) {
-    this.bins=data;
-    this.y = d3.extent(this.bins);
+    this.bins = data;
+    this.y = d3.extent(this.bins, d => d.value);
   }
-  update_params(width, height, margin_x, margin_y, label_x, label_y, style = {}, extra_params = {}){
-    this.margin_x = margin_x || 0;
-    this.data = [];
-    this.margin_y = margin_y || 0;
-    this.bins = [];
-    this.width = width || 800;
-    this.height = height || 600;
-    this.extra_params = extra_params
-    
 
-    Object.entries(style).forEach(([key, value]) => {
-      this.svg.style(key, value);
-    });
-    this.label_x = label_x || 'X';
-    this.label_y = label_y || 'Y';
-    this.fill = extra_params.fill ? extra_params.fill:'#ffffff';
-    extra_params = {
-      relative_thickness: extra_params.relative_thickness? extra_params.relative_thickness : 1
+  createScales() {
+    if (this.params.type == 'barchart') {
+      let yExtent = d3.extent(this.bins, d => {
+        return d.value;
+      });
+      this.bins.map(d => console.log(d.label))
+      this.yScale = d3.scaleLinear().domain([0, yExtent[1]]).nice().range([this.params.height, 0]);
+      this.xScale = d3.scaleBand().domain(this.bins.map( d => d.label)).range([0, this.params.width])
+      
+    } else {
     }
+
   }
-  render() {
-    let maxValue = Math.max(...this.bins)
-    let actualHeight = this.height - this.margin_y;
-    let actualWidth = this.width - this.margin_x;
-    this.svg.selectAll('rect')
-      .data(this.bins)
-      .join('rect')
-      .transition()
-      .duration(2000)
-      .attr('width' , () => actualWidth / this.bins.length * (this.extra_params.relative_thickness || 1) )
-      .attr('x', (d, i) => {
-        let x = i * actualWidth / this.bins.length
-        x += (actualWidth / this.bins.length)/2 * (1 - this.extra_params.relative_thickness || 1)
-        x += this.margin_x /2 
-        return  x
-      })
-      .attr('height' , d => actualHeight/maxValue * d)
-      .attr('y', d => actualHeight - (actualHeight/maxValue * d) + this.margin_y/2)
-      .style('fill', this.fill)
+
+  createAxis() {
+    if (this.params.type == 'barchart') {
+      let yAxis = d3.axisLeft(this.yScale)
+        .ticks(15);
+
+      this.margins.append("g")
+        .attr("transform", "translate(0," + this.params.height + ")")
+        .call(d3.axisBottom(this.xScale));
+
+      this.margins
+        .append("g")
+        .call(yAxis);
     }
-  updateFill(color){
-    this.fill = color;
+
+
+
+  }
+
+  render() {
+    console.log(this.y);
+    if (this.params.type == 'barchart') {
+      this.margins.selectAll('rect')
+        .data(this.bins)
+        .join('rect')
+        .transition()
+        .duration(2000)
+        .attr('width', () => {
+          let width = (this.params.width) / this.bins.length //centralizar tabela
+          width *= this.params.extra.relative_thickness || 1; //diminuir grossura
+          return width;
+        })
+        .attr('x', (d, i) => {
+          let x = i * (this.params.width) / this.bins.length
+          x += (this.params.width / this.bins.length) / 2 * (1 - this.params.extra.relative_thickness || 1);
+          return x
+        })
+        .attr('height', d => {
+          return this.params.height / this.y[1] * d.value;
+        })
+        .attr('y', d => {
+          let y = this.params.height - this.params.height / this.y[1] * d.value;
+          return y;
+        })
+        .style('fill', this.params.extra.fill || '#ffffff')
+    } else {
+      this.margins.selectAll('circle')
+        .data(this.circles)
+        .join('circle')
+        .attr('cx', d => this.xScale(d.cx))
+        .attr('cy', d => this.yScale(d.cy))
+        .attr('r', d => d.r)
+        .attr('fill', d => this.colScale(d.col));
+      // .attr('fill', d => this.catScale(d.cat));
+    }
+
+  }
+
+  updateFill(color) {
+
   }
   updateData() {
-    
+
   }
-  
+
 
 }
