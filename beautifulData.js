@@ -80,7 +80,11 @@ export class BeautifulData {
       let xExtent = d3.extent(this.circles, d => {
         return d.cx;
       });
-      this.x.domain([0, xExtent[1]]).nice();
+      if (this.params.extra.start_minimum_value_x) {
+        this.x.domain(xExtent).nice();
+      } else {
+        this.x.domain([0, xExtent[1]]).nice();
+      }
       this.y.domain([0, yExtent[1]]).nice();
     } else if (this.params.type == 'linechart') {
       this.data = data
@@ -137,7 +141,7 @@ export class BeautifulData {
         .attr('r', d => d.r || 1)
         .attr('fill', d => d.fill || this.params.extra.fill || '#ffffff');
     } else if (this.params.type == 'linechart') {
-      
+
       let u = this.margins.selectAll(".lineTest")
         .data([this.data], function (d) {
           return d.x
@@ -151,10 +155,10 @@ export class BeautifulData {
         .transition()
         .duration(3000)
         .attr("d", d3.line()
-          .x( d=> this.x(d.x))
-          .y( d=> this.y(d.y)))
+          .x(d => this.x(d.x))
+          .y(d => this.y(d.y)))
         .attr("fill", "none")
-        .attr("stroke", "#0000ff")
+        .attr("stroke", this.params.extra.stroke || '#ffffff')
         .attr("stroke-width", 2.5)
 
 
